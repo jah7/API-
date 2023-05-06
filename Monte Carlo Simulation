@@ -1,0 +1,64 @@
+import matplotlib.pyplot as plt
+from numpy import random
+import numpy as np
+expectedReturn = 0.10                      
+stDevReturn = 0.18                       
+numOfTradingDaysPerYear = 240              
+numOfYears = 20                            
+monthlyContribution = 1000                 
+
+# Model Parameters (Derived)
+numOfPeriods = numOfTradingDaysPerYear*numOfYears    
+periodLength = 1/numOfTradingDaysPerYear             
+
+
+numOfSimulations = 10000                           
+
+retirementBalance = [0]*numOfSimulations
+
+
+for simNum in range(0, numOfSimulations):
+    
+
+    accountBalanceInit = 0
+    tValsInYearsInit = 0  
+    
+
+    accountBalance = [0]*numOfPeriods      # Account Balance Time Series
+    tValsInYears = [0]*numOfPeriods        # Time Time Series - Years
+
+    accountBalance[0] = accountBalanceInit
+    tValsInYears[0] = tValsInYearsInit               
+
+  
+    for t in range(0,numOfPeriods-1):
+
+       
+        if (t % 20 == 0):
+            accountBalance[t] = accountBalance[t] + monthlyContribution
+
+         
+        randomShock = random.randn()
+        returnAmount = accountBalance[t] \
+                       + expectedReturn*accountBalance[t]*periodLength \
+                       + stDevReturn*randomShock*accountBalance[t]*(periodLength**0.5)    
+
+        accountBalance[t+1] = max(returnAmount, 0)
+
+        
+        tValsInYears[t+1] = tValsInYears[t] + periodLength        
+
+   
+    retirementBalance[simNum] = accountBalance[numOfPeriods-1]
+
+# Print Statistics:
+print("Q2axiii")
+print('Median:', np.percentile(retirementBalance, 50))
+print('IQR:', np.percentile(retirementBalance, 75) - np.percentile(retirementBalance, 25))
+fig, ax = plt.subplots()
+ax.plot(tValsInYears, accountBalance)
+
+# Label the Figure
+ax.set_title('Account Balance over Time')
+ax.set_xlabel('Time in Years')
+ax.set_ylabel('Account Balance')
