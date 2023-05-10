@@ -14,14 +14,15 @@ s0 = sMain
 E0 = 90 #employed
 U0 = 10 #unmemployed
 t0 = 0  
-UNRATE0 = U0/(E0 + U0) #unemployment rate
-
+UNRATE0 = U0/(E0 + U0)#unemployment rate
+ERATE0= E0/(E0 + U0) #employment rate
 # Create Space to Save Variables
 sVals = np.zeros(T)
 EVals = np.zeros(T)
 UVals = np.zeros(T)
 tVals = np.zeros(T)
 UNRATEVals = np.zeros(T)
+ERATEVals=np.zeros(T)
 
 # Simulation
 ## Set Initial Values
@@ -29,6 +30,7 @@ sVals[0] = s0
 EVals[0] = E0
 UVals[0] = U0
 UNRATEVals[0] = UNRATE0
+ERATEVals[0]=ERATE0
 tVals[0] = t0
 
 # Do the loop for change in separation rate in years 5-10
@@ -41,15 +43,28 @@ for t in range(0, T-1):
     EVals[t+1] = ((1-sVals[t])*EVals[t]) + (f*UVals[t])
     UVals[t+1] = (sVals[t]*EVals[t]) + ((1-f)*UVals[t])
     UNRATEVals[t+1] = UVals[t+1]/(EVals[t+1] + UVals[t+1])
+    ERATEVals[t+1]=EVals[t+1]/(EVals[t+1] + UVals[t+1])
     tVals[t+1] = tVals[t] + 1
     
     
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(1, 2, figsize = (10, 5))
 
-ax.plot(tVals,UNRATEVals, c = 'b', marker = "*")
-ax.set_xlabel('Time')
-ax.set_ylabel('Unemployment Rate')
-ax.set_title('Plot of Unemployment Rate')
+ax[0].plot(tVals,UNRATEVals, c = 'b', marker = "*")
+ax[0].set_xlabel('Time')
+ax[0].set_ylabel('Unemployment Rate')
+ax[0].set_title('Plot of Unemployment Rate')
 
 fig.show()
+
+ax[1].plot(tVals,ERATEVals, c = 'b', marker = "*")
+ax[1].set_xlabel('Time')
+ax[1].set_ylabel('employment Rate')
+ax[1].set_title('Plot of employment Rate')
+
+fig.show()
+
+
+    
+
+
