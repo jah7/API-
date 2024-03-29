@@ -1,0 +1,15 @@
+df = pd.read_csv('/kaggle/input/natural-gas-consumption-by-zip-code/natural-gas-consumption-by-zip-code-2010.csv')
+df.head()
+import plotly.express as px
+df.columns = ['Zip Code', 'Building Type', 'Consumption (Therms)',
+       'Consumption (GJ)', 'Source','Latitude','Longitude']
+fig = px.scatter_mapbox(df[df["Consumption (Therms)"].notna()],
+                        lat="Latitude",
+                        lon="Longitude",
+                        hover_name='Zip Code',
+                        size="Consumption (Therms)",
+                        color="Consumption (Therms)"
+                        )
+
+fig.update_layout(mapbox_style='open-street-map')
+fig.show()
