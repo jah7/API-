@@ -1,0 +1,37 @@
+import pandas as pd
+import numpy as np
+electricity=pd.read_csv('/kaggle/input/california-electricity-consumption-by-county/ElectricityByCounty CALIFORNIA Usage in Millions of kWh.csv')
+df=electricity.loc[electricity.County=="SANTA CLARA"]
+df
+
+
+df=electricity.loc[electricity.County=="SANTA CLARA"]
+yeardf=df.transpose()
+df1=yeardf.drop(yeardf.index[:2])
+print(df1)
+
+df2=df1.rename(columns={126:'Non-residential',127:'Residential',128:'Total'})
+df3=df2.reset_index()
+df3
+
+df4=df3.drop(index=30)
+df4
+
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(22, 22))
+plt.plot(df4['index'], df4['Non-residential'], label='Non-residential')
+plt.plot(df4['index'], df4['Residential'], label='Residential')
+plt.plot(df4['index'], df4['Total'], label='Total')
+
+plt.xlabel('Year')
+plt.ylabel('Usage')
+plt.title('Electricity Usage in Santa Clara')
+plt.legend()
+
+plt.grid(True)
+plt.show()
+
+import plotly.express as px
+fig=px.bar(df4,x='index',y='Total')
+fig.show()
