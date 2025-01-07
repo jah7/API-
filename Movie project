@@ -1,1 +1,69 @@
+import requests_with_caching
+
+def get_movie_data(name: str) -> dict:
+    """Returns a dictionary of movie information from the OMDb API."""
+    base_url = "http://www.omdbapi.com/"
+    params = {"t": name, "r": "json"}
+    response = requests_with_caching.get(base_url, params=params)
+    return response.json()
+def rt_rating(movie_data: dict) -> int:
+    """Returns the Rotten Tomatoes rating from a dictionary of movie information."""
+    for rating in movie_data.get("Ratings", []):
+        if rating["Source"] == "Rotten Tomatoes":
+            return int(rating["Value"].strip('%'))
+    return -1
+
+
+def get_joke_data(word: str) -> dict:
+    """Returns a dictionary of jokes containing the specified word."""
+    base_url = "https://icanhazdadjoke.com/search"
+    headers = {"Accept": "application/json"}
+    params = {"term": word, "limit": 2}
+    response = requests_with_caching.get(base_url, params=params, headers=headers)
+    return response.json()
+
+
+def get_jokes(plot: str, verbosity=0) -> tuple[str, list[str]]:
+    """Returns the longest word for which jokes exist and the jokes themselves."""
+    words = plot.split()
+    words = [w.strip(",.!;:") for w in words]
+    sorted_words = sorted(words, key=lambda x: (-len(x), words.index(x)))
+    
+    for word in sorted_words:
+        if verbosity:
+            print(f"Trying word: {word}")
+        joke_data = get_joke_data(word)
+        jokes = [joke["joke"] for joke in joke_data.get("results", [])]
+        if jokes:
+            return word, jokes
+    return None, None
+
+
+def haha_me(movie_name: str, verbosity=0) -> str:
+    """Generates a formatted string with movie details and jokes."""
+    movie_data = get_movie_data(movie_name)
+    
+    if "Error" in movie_data:
+        return f"No movie found: {movie_name}"
+    
+    plot = movie_data.get("Plot", "")
+    rt_score = rt_rating(movie_data)
+    if rt_score == -1:
+        return f"No Rotten Tomatoes rating for: {movie_name}"
+    
+    word, jokes = get_jokes(plot, verbosity)
+    if not jokes:
+        return "I've got no jokes about this movie. It's too serious!"
+    
+    highlighted_plot = highlight(plot, word)
+    joke_text = "\n".join(jokes)
+    
+    return (
+        f"{movie_name}\n"
+        f"Rotten Tomatoes rating: {rt_score}%\n"
+        f"{highlighted_plot}\n"
+        f"Speaking of *{word}*, that reminds me of some jokes.\n"
+        f"Hope they're as good as the movie!\n\n"
+        f"{joke_text}"
+    )
 
